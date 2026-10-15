@@ -3,69 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>weather.wales | Tywydd Cymru</title>
+  <title>weather.wales</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; background: #f3f4f6; }
-    .hourly-scroll::-webkit-scrollbar { height: 6px; }
-    .hourly-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #fff; }
+    .wx-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; }
   </style>
 </head>
-<body class="text-gray-800">
-  <!-- Top Nav -->
+<body class="bg-gray-50 text-gray-900">
+  <!-- Header -->
   <header class="bg-white border-b border-gray-200">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
-        <span class="text-xl font-bold text-blue-700">weather.wales</span>
+    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
+        <span class="font-bold text-xl text-blue-600">weather.wales</span>
       </div>
-      <button onclick="toggleLang()" class="text-sm text-blue-600 font-medium hover:underline">
+      <button onclick="toggleLang()" class="text-sm text-blue-600 font-medium">
         <span id="langLabel">Cymraeg</span>
       </button>
     </div>
   </header>
 
   <!-- Search -->
-  <div class="bg-white border-b border-gray-200">
-    <div class="max-w-3xl mx-auto px-4 py-4">
-      <div class="relative">
-        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-        <input id="searchInput" type="text" placeholder="Search for a city or town..."
-               class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-               oninput="filterCities()">
-      </div>
+  <div class="bg-white border-b border-gray-200 py-4">
+    <div class="max-w-2xl mx-auto px-4">
+      <input id="searchInput" type="text" placeholder="Search for a city..."
+             class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+             oninput="filterCities()">
     </div>
   </div>
 
-  <main class="max-w-6xl mx-auto px-4 py-6">
-    <!-- Current Conditions -->
-    <div id="current" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      Loading current conditions...
-    </div>
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <div class="grid lg:grid-cols-3 gap-6">
+      <!-- Main current -->
+      <div class="lg:col-span-2">
+        <div id="current" class="wx-card p-6 mb-6">
+          Loading...
+        </div>
 
-    <!-- Hourly -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      <h3 class="font-semibold mb-4">Hourly Forecast</h3>
-      <div id="hourly" class="hourly-scroll flex gap-4 overflow-x-auto pb-2"></div>
-    </div>
+        <!-- Hourly -->
+        <div class="wx-card p-6 mb-6">
+          <h3 class="font-semibold text-lg mb-4">Hourly</h3>
+          <div id="hourly" class="flex gap-6 overflow-x-auto"></div>
+        </div>
 
-    <!-- Map -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div id="map" class="h-80"></div>
-    </div>
+        <!-- Map -->
+        <div class="wx-card overflow-hidden">
+          <div id="map" class="h-96"></div>
+        </div>
+      </div>
 
-    <!-- 10-Day style -->
-    <div id="daily" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 class="font-semibold mb-4">Forecast Across Wales</h3>
-      <div id="weatherGrid" class="space-y-3"></div>
+      <!-- Side list -->
+      <div class="wx-card p-6">
+        <h3 class="font-semibold text-lg mb-4">Locations in Wales</h3>
+        <div id="weatherGrid" class="space-y-2 max-h-[800px] overflow-y-auto"></div>
+      </div>
     </div>
   </main>
 
-  <footer class="text-center py-6 text-xs text-gray-500">
-    weather.wales • Data from Open-Meteo • Made for Cymru
+  <footer class="text-center py-6 text-xs text-gray-400 border-t">
+    weather.wales • Open-Meteo data • Made for Cymru
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -95,7 +94,12 @@
       { name: "Conwy", nameCy: "Conwy", lat: 53.2804, lon: -3.8265 },
       { name: "Porthmadog", nameCy: "Porthmadog", lat: 52.9293, lon: -4.1314 },
       { name: "Llanelli", nameCy: "Llanelli", lat: 51.6806, lon: -4.1615 },
-      { name: "Neath", nameCy: "Castell-nedd", lat: 51.6631, lon: -3.8047 }
+      { name: "Neath", nameCy: "Castell-nedd", lat: 51.6631, lon: -3.8047 },
+      { name: "Port Talbot", nameCy: "Port Talbot", lat: 51.5924, lon: -3.7802 },
+      { name: "Cwmbran", nameCy: "Cwmbrân", lat: 51.6544, lon: -3.0228 },
+      { name: "Ebbw Vale", nameCy: "Glynebwy", lat: 51.7775, lon: -3.2075 },
+      { name: "Newtown", nameCy: "Y Drenewydd", lat: 52.5140, lon: -3.3145 },
+      { name: "Welshpool", nameCy: "Y Trallwng", lat: 52.6601, lon: -3.1474 }
     ];
 
     let lang = 'en';
@@ -105,8 +109,8 @@
 
     const codes = {
       0: { en: "Clear", cy: "Glir", icon: "☀️" },
-      1: { en: "Mostly clear", cy: "Yn bennaf glir", icon: "🌤️" },
-      2: { en: "Partly cloudy", cy: "Cymylog yn rhannol", icon: "⛅" },
+      1: { en: "Mostly Clear", cy: "Yn bennaf glir", icon: "🌤️" },
+      2: { en: "Partly Cloudy", cy: "Cymylog yn rhannol", icon: "⛅" },
       3: { en: "Cloudy", cy: "Cwmwlog", icon: "☁️" },
       61: { en: "Rain", cy: "Glaw", icon: "🌧️" },
       95: { en: "Thunderstorm", cy: "Storm", icon: "⛈️" }
@@ -125,21 +129,20 @@
       markers = [];
       data.forEach(c => {
         const m = L.marker([c.lat, c.lon]).addTo(map);
-        m.bindPopup(`<b>${lang==='en'?c.name:c.nameCy}</b><br>${c.temp}° ${c.desc.icon}`);
+        m.bindPopup(`<strong>${lang==='en'?c.name:c.nameCy}</strong><br>${c.temp}° ${c.desc.icon}`);
         m.on('click', () => setFeatured(c));
         markers.push(m);
       });
     }
 
     async function load() {
-      document.getElementById('weatherGrid').innerHTML = '<p class="text-gray-500">Loading...</p>';
       const results = await Promise.all(cities.map(async city => {
         try {
           const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&timezone=Europe/London`);
           const d = await r.json();
           const cur = d.current;
           const hourly = d.hourly.time.slice(0, 24).map((t, i) => ({
-            time: new Date(t).getHours(),
+            hour: new Date(t).getHours(),
             temp: Math.round(d.hourly.temperature_2m[i]),
             code: d.hourly.weather_code[i]
           }));
@@ -157,36 +160,36 @@
     function setFeatured(c) {
       featured = c;
       document.getElementById('current').innerHTML = `
-        <div class="flex items-center justify-between">
+        <div class="flex items-start justify-between">
           <div>
-            <h2 class="text-3xl font-bold">${lang==='en'?c.name:c.nameCy}</h2>
-            <p class="text-gray-500 text-sm">${lang==='en'?c.nameCy:c.name}</p>
-            <div class="text-7xl font-light my-2">${c.temp}°</div>
-            <p class="text-lg">${lang==='en'?c.desc.en:c.desc.cy}</p>
-            <p class="text-sm text-gray-500 mt-1"><i class="fas fa-wind"></i> ${c.wind} km/h</p>
+            <h1 class="text-4xl font-bold">${lang==='en'?c.name:c.nameCy}</h1>
+            <p class="text-gray-500">${lang==='en'?c.nameCy:c.name}</p>
+            <div class="text-8xl font-light leading-none my-4">${c.temp}°</div>
+            <p class="text-xl">${lang==='en'?c.desc.en:c.desc.cy}</p>
+            <p class="text-sm text-gray-500 mt-2">Wind ${c.wind} km/h</p>
           </div>
           <div class="text-8xl">${c.desc.icon}</div>
         </div>`;
       document.getElementById('hourly').innerHTML = (c.hourly || []).slice(0, 12).map(h => `
-        <div class="text-center min-w-[70px]">
-          <div class="text-sm text-gray-500">${h.time}:00</div>
-          <div class="text-2xl my-1">${desc(h.code).icon}</div>
-          <div class="font-semibold">${h.temp}°</div>
+        <div class="text-center min-w-[60px]">
+          <div class="text-xs text-gray-500">${h.hour}:00</div>
+          <div class="text-3xl my-1">${desc(h.code).icon}</div>
+          <div class="font-medium">${h.temp}°</div>
         </div>
       `).join('');
     }
 
     function renderList(data) {
       document.getElementById('weatherGrid').innerHTML = data.map(c => `
-        <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50 px-2 rounded" onclick='setFeatured(${JSON.stringify(c)})'>
-          <div class="flex items-center gap-4">
-            <span class="text-3xl">${c.desc.icon}</span>
+        <div class="flex items-center justify-between py-2 px-2 hover:bg-gray-50 rounded cursor-pointer" onclick='setFeatured(${JSON.stringify(c)})'>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">${c.desc.icon}</span>
             <div>
               <div class="font-medium">${lang==='en'?c.name:c.nameCy}</div>
-              <div class="text-sm text-gray-500">${lang==='en'?c.desc.en:c.desc.cy}</div>
+              <div class="text-xs text-gray-500">${lang==='en'?c.desc.en:c.desc.cy}</div>
             </div>
           </div>
-          <div class="text-2xl font-light">${c.temp}°</div>
+          <div class="text-xl font-light">${c.temp}°</div>
         </div>
       `).join('');
     }
