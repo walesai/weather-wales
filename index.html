@@ -70,8 +70,8 @@
   </footer>
 
   <script>
+
     const cities = [
-      // South Wales
       { name: "Cardiff", nameCy: "Caerdydd", lat: 51.4816, lon: -3.1791 },
       { name: "Swansea", nameCy: "Abertawe", lat: 51.6214, lon: -3.9436 },
       { name: "Newport", nameCy: "Casnewydd", lat: 51.5842, lon: -2.9977 },
@@ -82,21 +82,18 @@
       { name: "Caerphilly", nameCy: "Caerffili", lat: 51.5745, lon: -3.2180 },
       { name: "Cwmbran", nameCy: "Cwmbrân", lat: 51.6544, lon: -3.0228 },
       { name: "Ebbw Vale", nameCy: "Glynebwy", lat: 51.7775, lon: -3.2075 },
-      // Mid Wales
       { name: "Aberystwyth", nameCy: "Aberystwyth", lat: 52.4153, lon: -4.0829 },
       { name: "Brecon", nameCy: "Aberhonddu", lat: 51.9461, lon: -3.3886 },
       { name: "Newtown", nameCy: "Y Drenewydd", lat: 52.5140, lon: -3.3145 },
       { name: "Welshpool", nameCy: "Y Trallwng", lat: 52.6601, lon: -3.1474 },
       { name: "Machynlleth", nameCy: "Machynlleth", lat: 52.5905, lon: -3.8518 },
       { name: "Llandrindod Wells", nameCy: "Llandrindod", lat: 52.2411, lon: -3.3784 },
-      // West Wales
       { name: "Carmarthen", nameCy: "Caerfyrddin", lat: 51.8560, lon: -4.3095 },
       { name: "Haverfordwest", nameCy: "Hwlffordd", lat: 51.8017, lon: -4.9691 },
       { name: "Cardigan", nameCy: "Aberteifi", lat: 52.0837, lon: -4.6602 },
       { name: "Tenby", nameCy: "Dinbych-y-pysgod", lat: 51.6728, lon: -4.7061 },
       { name: "Pembroke", nameCy: "Penfro", lat: 51.6761, lon: -4.9147 },
       { name: "Fishguard", nameCy: "Abergwaun", lat: 51.9939, lon: -4.9761 },
-      // North Wales
       { name: "Bangor", nameCy: "Bangor", lat: 53.2274, lon: -4.1293 },
       { name: "Wrexham", nameCy: "Wrecsam", lat: 53.0430, lon: -2.9930 },
       { name: "Caernarfon", nameCy: "Caernarfon", lat: 53.1413, lon: -4.2702 },
@@ -109,32 +106,19 @@
       { name: "Bala", nameCy: "Y Bala", lat: 52.9111, lon: -3.5972 }
     ];
 
+    const regions = {
+      "South Wales": ["Cardiff", "Swansea", "Newport", "Barry", "Bridgend", "Merthyr Tydfil", "Pontypridd", "Caerphilly", "Cwmbran", "Ebbw Vale"],
+      "Mid Wales": ["Aberystwyth", "Brecon", "Newtown", "Welshpool", "Machynlleth", "Llandrindod Wells"],
+      "West Wales": ["Carmarthen", "Haverfordwest", "Cardigan", "Tenby", "Pembroke", "Fishguard"],
+      "North Wales": ["Bangor", "Wrexham", "Caernarfon", "Llandudno", "Conwy", "Holyhead", "Rhyl", "Colwyn Bay", "Porthmadog", "Bala"]
+    };
+
     let lang = 'en';
     let allResults = [];
     let map;
     let markers = [];
 
-    function initMap() {
-      map = L.map('map').setView([52.3, -3.8], 7);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
-    }
-
-    function updateMarkers(data) {
-      if (!map) return;
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
-      data.forEach(city => {
-        const marker = L.marker([city.lat, city.lon]).addTo(map);
-        marker.bindPopup(`
-          <strong>${lang === 'en' ? city.name : city.nameCy}</strong><br>
-          ${city.temp}°C ${city.desc.icon}<br>
-          ${lang === 'en' ? city.desc.en : city.desc.cy}
-        `);
-        markers.push(marker);
-      });
-    }
+    const weatherCodes = {
       0: { en: "Clear sky", cy: "Awyr glir", icon: "☀️" },
       1: { en: "Mainly clear", cy: "Yn bennaf glir", icon: "🌤️" },
       2: { en: "Partly cloudy", cy: "Cymylog yn rhannol", icon: "⛅" },
@@ -154,19 +138,27 @@
       return weatherCodes[code] || { en: "Unknown", cy: "Anhysbys", icon: "❓" };
     }
 
-    const regions = {
-      "South Wales": ["Cardiff", "Swansea", "Newport", "Barry", "Bridgend", "Merthyr Tydfil", "Pontypridd", "Caerphilly", "Cwmbran", "Ebbw Vale"],
-      "Mid Wales": ["Aberystwyth", "Brecon", "Newtown", "Welshpool", "Machynlleth", "Llandrindod Wells"],
-      "West Wales": ["Carmarthen", "Haverfordwest", "Cardigan", "Tenby", "Pembroke", "Fishguard"],
-      "North Wales": ["Bangor", "Wrexham", "Caernarfon", "Llandudno", "Conwy", "Holyhead", "Rhyl", "Colwyn Bay", "Porthmadog", "Bala"]
-    };
+    function initMap() {
+      map = L.map('map').setView([52.3, -3.8], 7);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+    }
 
-    let allResults = [];
+    function updateMarkers(data) {
+      if (!map) return;
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+      data.forEach(city => {
+        const marker = L.marker([city.lat, city.lon]).addTo(map);
+        marker.bindPopup(`<strong>${lang === 'en' ? city.name : city.nameCy}</strong><br>${city.temp}°C ${city.desc.icon}<br>${lang === 'en' ? city.desc.en : city.desc.cy}`);
+        markers.push(marker);
+      });
+    }
 
     async function loadWeather() {
       const grid = document.getElementById('weatherGrid');
       grid.innerHTML = '<div class="text-center py-12 text-2xl">Loading live weather...</div>';
-
       const promises = cities.map(async (city) => {
         try {
           const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/London`);
@@ -178,7 +170,6 @@
           return { ...city, temp: "--", wind: "--", desc: { en: "Unavailable", cy: "Ddim ar gael", icon: "⚠️" } };
         }
       });
-
       allResults = await Promise.all(promises);
       renderRegions(allResults);
       updateMarkers(allResults);
@@ -190,38 +181,30 @@
       for (const [region, names] of Object.entries(regions)) {
         const regionCities = data.filter(c => names.includes(c.name));
         if (regionCities.length === 0) continue;
-        html += `<div>
-          <h3 class="text-3xl font-bold mb-6 text-emerald-400">${region}</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            ${regionCities.map(city => `
-              <div class="card bg-slate-800/80 backdrop-blur rounded-3xl overflow-hidden border border-white/10">
-                <div class="p-8">
-                  <div class="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 class="text-2xl font-bold">${lang === 'en' ? city.name : city.nameCy}</h3>
-                      <p class="text-slate-400 text-sm">${lang === 'en' ? city.nameCy : city.name}</p>
-                    </div>
-                    <span class="text-5xl">${city.desc.icon}</span>
+        html += `<div><h3 class="text-3xl font-bold mb-6 text-emerald-400">${region}</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">` +
+          regionCities.map(city => `
+            <div class="card bg-slate-800/80 backdrop-blur rounded-3xl overflow-hidden border border-white/10">
+              <div class="p-8">
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 class="text-2xl font-bold">${lang === 'en' ? city.name : city.nameCy}</h3>
+                    <p class="text-slate-400 text-sm">${lang === 'en' ? city.nameCy : city.name}</p>
                   </div>
-                  <div class="text-6xl font-extrabold mb-2">${city.temp}°C</div>
-                  <p class="text-xl text-emerald-300 mb-4">${lang === 'en' ? city.desc.en : city.desc.cy}</p>
-                  <div class="flex gap-6 text-sm text-slate-400">
-                    <div><i class="fas fa-wind mr-2"></i>${city.wind} km/h</div>
-                  </div>
+                  <span class="text-5xl">${city.desc.icon}</span>
                 </div>
+                <div class="text-6xl font-extrabold mb-2">${city.temp}°C</div>
+                <p class="text-xl text-emerald-300 mb-4">${lang === 'en' ? city.desc.en : city.desc.cy}</p>
+                <div class="flex gap-6 text-sm text-slate-400"><div><i class="fas fa-wind mr-2"></i>${city.wind} km/h</div></div>
               </div>
-            `).join('')}
-          </div>
-        </div>`;
+            </div>
+          `).join('') + '</div></div>';
       }
       grid.innerHTML = html || '<div class="text-center py-12 text-slate-400">No matches found.</div>';
     }
 
     function filterCities() {
       const query = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = allResults.filter(c => 
-        c.name.toLowerCase().includes(query) || c.nameCy.toLowerCase().includes(query)
-      );
+      const filtered = allResults.filter(c => c.name.toLowerCase().includes(query) || c.nameCy.toLowerCase().includes(query));
       renderRegions(filtered);
       updateMarkers(filtered);
     }
@@ -232,12 +215,12 @@
       document.querySelectorAll('[data-en]').forEach(el => {
         el.textContent = lang === 'en' ? el.dataset.en : el.dataset.cy;
       });
-      filterCities(); // re-render with current search
+      filterCities();
     }
 
-    // Initial load
     initMap();
     loadWeather();
+
   </script>
 </body>
 </html>
