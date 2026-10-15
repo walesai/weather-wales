@@ -8,13 +8,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; background: #fff; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f8f9fa; }
     .wx-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
   <!-- Header -->
-  <header class="bg-white border-b border-gray-200">
+  <header class="bg-white border-b border-gray-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="text-2xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
@@ -39,7 +39,7 @@
     <div class="grid lg:grid-cols-3 gap-6">
       <!-- Main current -->
       <div class="lg:col-span-2">
-        <div id="current" class="wx-card p-6 mb-6">
+        <div id="current" class="wx-card p-8 mb-6">
           Loading...
         </div>
 
@@ -164,7 +164,7 @@
           <div>
             <h1 class="text-4xl font-bold">${lang==='en'?c.name:c.nameCy}</h1>
             <p class="text-gray-500">${lang==='en'?c.nameCy:c.name}</p>
-            <div class="text-8xl font-light leading-none my-4">${c.temp}°</div>
+            <div class="text-7xl font-light leading-none my-3">${c.temp}°</div>
             <p class="text-xl">${lang==='en'?c.desc.en:c.desc.cy}</p>
             <p class="text-sm text-gray-500 mt-2">Wind ${c.wind} km/h</p>
           </div>
