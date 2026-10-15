@@ -86,8 +86,8 @@
     function desc(code) { return codes[code] || { en: "Cloudy", cy: "Cwmwlog", icon: "☁️" }; }
     function initMap() {
       map = L.map('map', { zoomControl: false }).setView([52.3, -3.8], 7);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OSM & CARTO'
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OSM & CARTOcopy; OpenStreetMap contributors'
       }).addTo(map);
     }
     function updateMarkers(data) {
