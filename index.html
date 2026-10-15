@@ -6,48 +6,66 @@
   <title>weather.wales | Tywydd Cymru</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(180deg, #e0f2fe 0%, #f8fafc 100%); }
-    .temp-big { font-size: 5.5rem; line-height: 1; font-weight: 300; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f3f4f6; }
+    .hourly-scroll::-webkit-scrollbar { height: 6px; }
+    .hourly-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
   </style>
 </head>
-<body class="text-slate-800">
-  <header class="bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+<body class="text-gray-800">
+  <!-- Top Nav -->
+  <header class="bg-white border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <span class="text-4xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
-        <div>
-          <h1 class="text-2xl font-bold text-sky-700">weather.wales</h1>
-          <p class="text-xs text-slate-500">Tywydd Cymru</p>
-        </div>
+        <span class="text-3xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
+        <span class="text-xl font-bold text-blue-700">weather.wales</span>
       </div>
-      <button onclick="toggleLang()" class="px-4 py-2 rounded-full bg-sky-100 text-sky-700 text-sm font-semibold hover:bg-sky-200">
+      <button onclick="toggleLang()" class="text-sm text-blue-600 font-medium hover:underline">
         <span id="langLabel">Cymraeg</span>
       </button>
     </div>
   </header>
 
-  <div class="max-w-2xl mx-auto px-4 py-6">
-    <div class="relative">
-      <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-      <input id="searchInput" type="text" placeholder="Search any town or city in Wales..."
-             class="w-full pl-14 pr-6 py-4 rounded-2xl border-0 shadow-lg text-lg focus:outline-none focus:ring-4 focus:ring-sky-200"
-             oninput="filterCities()">
+  <!-- Search -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-3xl mx-auto px-4 py-4">
+      <div class="relative">
+        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input id="searchInput" type="text" placeholder="Search for a city or town..."
+               class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+               oninput="filterCities()">
+      </div>
     </div>
   </div>
 
-  <main class="max-w-6xl mx-auto px-4 pb-12">
-    <div id="featured" class="bg-white rounded-3xl shadow-xl p-8 mb-8">Loading...</div>
-    <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-10">
-      <div id="map" class="h-96"></div>
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <!-- Current Conditions -->
+    <div id="current" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      Loading current conditions...
     </div>
-    <div id="weatherGrid"></div>
+
+    <!-- Hourly -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="font-semibold mb-4">Hourly Forecast</h3>
+      <div id="hourly" class="hourly-scroll flex gap-4 overflow-x-auto pb-2"></div>
+    </div>
+
+    <!-- Map -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div id="map" class="h-80"></div>
+    </div>
+
+    <!-- 10-Day style -->
+    <div id="daily" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h3 class="font-semibold mb-4">Forecast Across Wales</h3>
+      <div id="weatherGrid" class="space-y-3"></div>
+    </div>
   </main>
 
-  <footer class="text-center py-8 text-slate-500 text-sm">
-    weather.wales • Free live data from Open-Meteo • Made for Cymru 🏴󠁧󠁢󠁷󠁬󠁳󠁿
+  <footer class="text-center py-6 text-xs text-gray-500">
+    weather.wales • Data from Open-Meteo • Made for Cymru
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -63,143 +81,133 @@
       { name: "Llandudno", nameCy: "Llandudno", lat: 53.3240, lon: -3.8274 },
       { name: "Haverfordwest", nameCy: "Hwlffordd", lat: 51.8017, lon: -4.9691 },
       { name: "Carmarthen", nameCy: "Caerfyrddin", lat: 51.8560, lon: -4.3095 },
-      { name: "Tenby", nameCy: "Dinbych-y-pysgod", lat: 51.6728, lon: -4.7061 },
-      { name: "Holyhead", nameCy: "Caergybi", lat: 53.3094, lon: -4.6331 },
       { name: "Barry", nameCy: "Y Barri", lat: 51.3998, lon: -3.2838 },
       { name: "Bridgend", nameCy: "Pen-y-bont ar Ogwr", lat: 51.5045, lon: -3.5769 },
       { name: "Merthyr Tydfil", nameCy: "Merthyr Tudful", lat: 51.7476, lon: -3.3778 },
       { name: "Pontypridd", nameCy: "Pontypridd", lat: 51.6018, lon: -3.3421 },
       { name: "Caerphilly", nameCy: "Caerffili", lat: 51.5745, lon: -3.2180 },
-      { name: "Cwmbran", nameCy: "Cwmbrân", lat: 51.6544, lon: -3.0228 },
-      { name: "Ebbw Vale", nameCy: "Glynebwy", lat: 51.7775, lon: -3.2075 },
       { name: "Brecon", nameCy: "Aberhonddu", lat: 51.9461, lon: -3.3886 },
-      { name: "Newtown", nameCy: "Y Drenewydd", lat: 52.5140, lon: -3.3145 },
-      { name: "Welshpool", nameCy: "Y Trallwng", lat: 52.6601, lon: -3.1474 },
-      { name: "Machynlleth", nameCy: "Machynlleth", lat: 52.5905, lon: -3.8518 },
-      { name: "Llandrindod Wells", nameCy: "Llandrindod", lat: 52.2411, lon: -3.3784 },
       { name: "Cardigan", nameCy: "Aberteifi", lat: 52.0837, lon: -4.6602 },
-      { name: "Pembroke", nameCy: "Penfro", lat: 51.6761, lon: -4.9147 },
-      { name: "Fishguard", nameCy: "Abergwaun", lat: 51.9939, lon: -4.9761 },
-      { name: "Conwy", nameCy: "Conwy", lat: 53.2804, lon: -3.8265 },
+      { name: "Tenby", nameCy: "Dinbych-y-pysgod", lat: 51.6728, lon: -4.7061 },
       { name: "Rhyl", nameCy: "Y Rhyl", lat: 53.3190, lon: -3.4920 },
       { name: "Colwyn Bay", nameCy: "Bae Colwyn", lat: 53.2947, lon: -3.7269 },
+      { name: "Holyhead", nameCy: "Caergybi", lat: 53.3094, lon: -4.6331 },
+      { name: "Conwy", nameCy: "Conwy", lat: 53.2804, lon: -3.8265 },
       { name: "Porthmadog", nameCy: "Porthmadog", lat: 52.9293, lon: -4.1314 },
-      { name: "Bala", nameCy: "Y Bala", lat: 52.9111, lon: -3.5972 },
-      { name: "Abergele", nameCy: "Abergele", lat: 53.2844, lon: -3.5822 },
-      { name: "Prestatyn", nameCy: "Prestatyn", lat: 53.3364, lon: -3.4053 },
-      { name: "Mold", nameCy: "Yr Wyddgrug", lat: 53.1667, lon: -3.1417 },
-      { name: "Ruthin", nameCy: "Rhuthun", lat: 53.1140, lon: -3.3106 },
-      { name: "Denbigh", nameCy: "Dinbych", lat: 53.1845, lon: -3.4186 },
       { name: "Llanelli", nameCy: "Llanelli", lat: 51.6806, lon: -4.1615 },
-      { name: "Ammanford", nameCy: "Rhydaman", lat: 51.7928, lon: -3.9883 },
-      { name: "Neath", nameCy: "Castell-nedd", lat: 51.6631, lon: -3.8047 },
-      { name: "Port Talbot", nameCy: "Port Talbot", lat: 51.5924, lon: -3.7802 }
-
+      { name: "Neath", nameCy: "Castell-nedd", lat: 51.6631, lon: -3.8047 }
     ];
-    const regions = {
-      "South Wales": ["Cardiff", "Swansea", "Newport", "Barry", "Bridgend", "Merthyr Tydfil", "Pontypridd", "Caerphilly", "Cwmbran", "Ebbw Vale", "Neath", "Port Talbot", "Llanelli"],
-      "Mid Wales": ["Aberystwyth", "Brecon", "Newtown", "Welshpool", "Machynlleth", "Llandrindod Wells"],
-      "West Wales": ["Haverfordwest", "Carmarthen", "Tenby", "Cardigan", "Pembroke", "Fishguard", "Ammanford"],
-      "North Wales": ["Bangor", "Wrexham", "Caernarfon", "Llandudno", "Holyhead", "Conwy", "Rhyl", "Colwyn Bay", "Porthmadog", "Bala", "Abergele", "Prestatyn", "Mold", "Ruthin", "Denbigh"]
-    };
+
     let lang = 'en';
     let allResults = [];
     let map, markers = [];
+    let featured = null;
+
     const codes = {
-      0: { en: "Clear sky", cy: "Awyr glir", icon: "☀️" },
-      1: { en: "Mainly clear", cy: "Yn bennaf glir", icon: "🌤️" },
+      0: { en: "Clear", cy: "Glir", icon: "☀️" },
+      1: { en: "Mostly clear", cy: "Yn bennaf glir", icon: "🌤️" },
       2: { en: "Partly cloudy", cy: "Cymylog yn rhannol", icon: "⛅" },
-      3: { en: "Overcast", cy: "Cwmwlog", icon: "☁️" },
+      3: { en: "Cloudy", cy: "Cwmwlog", icon: "☁️" },
       61: { en: "Rain", cy: "Glaw", icon: "🌧️" },
       95: { en: "Thunderstorm", cy: "Storm", icon: "⛈️" }
     };
     function desc(code) { return codes[code] || { en: "Cloudy", cy: "Cwmwlog", icon: "☁️" }; }
+
     function initMap() {
-      map = L.map('map', { zoomControl: false }).setView([52.3, -3.8], 7);
+      map = L.map('map').setView([52.3, -3.8], 7);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OSM & CARTOcopy; OpenStreetMap contributors'
+        attribution: '&copy; OpenStreetMap'
       }).addTo(map);
     }
+
     function updateMarkers(data) {
       markers.forEach(m => map.removeLayer(m));
       markers = [];
       data.forEach(c => {
         const m = L.marker([c.lat, c.lon]).addTo(map);
         m.bindPopup(`<b>${lang==='en'?c.name:c.nameCy}</b><br>${c.temp}° ${c.desc.icon}`);
+        m.on('click', () => setFeatured(c));
         markers.push(m);
       });
     }
+
     async function load() {
-      document.getElementById('weatherGrid').innerHTML = '<p class="text-center text-slate-500 py-10">Loading live weather...</p>';
+      document.getElementById('weatherGrid').innerHTML = '<p class="text-gray-500">Loading...</p>';
       const results = await Promise.all(cities.map(async city => {
         try {
-          const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/London`);
+          const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&timezone=Europe/London`);
           const d = await r.json();
           const cur = d.current;
-          return { ...city, temp: Math.round(cur.temperature_2m), wind: Math.round(cur.wind_speed_10m), desc: desc(cur.weather_code) };
+          const hourly = d.hourly.time.slice(0, 24).map((t, i) => ({
+            time: new Date(t).getHours(),
+            temp: Math.round(d.hourly.temperature_2m[i]),
+            code: d.hourly.weather_code[i]
+          }));
+          return { ...city, temp: Math.round(cur.temperature_2m), wind: Math.round(cur.wind_speed_10m), desc: desc(cur.weather_code), hourly };
         } catch {
-          return { ...city, temp: "--", wind: "--", desc: { en: "Unavailable", cy: "Ddim ar gael", icon: "⚠️" } };
+          return { ...city, temp: "--", wind: "--", desc: { en: "N/A", cy: "N/A", icon: "⚠️" }, hourly: [] };
         }
       }));
       allResults = results;
-      renderFeatured(results[0]);
-      renderGrid(results);
+      setFeatured(results[0]);
+      renderList(results);
       updateMarkers(results);
     }
-    function renderFeatured(c) {
-      document.getElementById('featured').innerHTML = `
-        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
-          <div class="text-center md:text-left">
-            <h2 class="text-4xl font-bold">${lang==='en'?c.name:c.nameCy}</h2>
-            <p class="text-slate-500">${lang==='en'?c.nameCy:c.name}</p>
-            <div class="temp-big text-sky-700 my-4">${c.temp}°</div>
-            <p class="text-2xl">${lang==='en'?c.desc.en:c.desc.cy}</p>
-            <p class="mt-2 text-slate-500"><i class="fas fa-wind"></i> ${c.wind} km/h</p>
+
+    function setFeatured(c) {
+      featured = c;
+      document.getElementById('current').innerHTML = `
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-3xl font-bold">${lang==='en'?c.name:c.nameCy}</h2>
+            <p class="text-gray-500 text-sm">${lang==='en'?c.nameCy:c.name}</p>
+            <div class="text-7xl font-light my-2">${c.temp}°</div>
+            <p class="text-lg">${lang==='en'?c.desc.en:c.desc.cy}</p>
+            <p class="text-sm text-gray-500 mt-1"><i class="fas fa-wind"></i> ${c.wind} km/h</p>
           </div>
-          <div class="text-9xl">${c.desc.icon}</div>
+          <div class="text-8xl">${c.desc.icon}</div>
         </div>`;
+      document.getElementById('hourly').innerHTML = (c.hourly || []).slice(0, 12).map(h => `
+        <div class="text-center min-w-[70px]">
+          <div class="text-sm text-gray-500">${h.time}:00</div>
+          <div class="text-2xl my-1">${desc(h.code).icon}</div>
+          <div class="font-semibold">${h.temp}°</div>
+        </div>
+      `).join('');
     }
-    function renderGrid(data) {
-      let html = '';
-      for (const [reg, names] of Object.entries(regions)) {
-        const list = data.filter(c => names.includes(c.name));
-        if (!list.length) continue;
-        html += `<h3 class="text-2xl font-bold mb-4 mt-8">${reg} Wales</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          ${list.map(c => `
-            <div class="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition cursor-pointer" onclick='renderFeatured(${JSON.stringify(c)})'>
-              <div class="flex justify-between">
-                <div>
-                  <h4 class="font-semibold text-lg">${lang==='en'?c.name:c.nameCy}</h4>
-                  <p class="text-sm text-slate-500">${lang==='en'?c.desc.en:c.desc.cy}</p>
-                </div>
-                <span class="text-5xl">${c.desc.icon}</span>
-              </div>
-              <div class="text-5xl font-light mt-4 text-sky-700">${c.temp}°</div>
-              <p class="text-sm text-slate-400 mt-1">${c.wind} km/h wind</p>
-            </div>`).join('')}
-        </div>`;
-      }
-      document.getElementById('weatherGrid').innerHTML = html;
+
+    function renderList(data) {
+      document.getElementById('weatherGrid').innerHTML = data.map(c => `
+        <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50 px-2 rounded" onclick='setFeatured(${JSON.stringify(c)})'>
+          <div class="flex items-center gap-4">
+            <span class="text-3xl">${c.desc.icon}</span>
+            <div>
+              <div class="font-medium">${lang==='en'?c.name:c.nameCy}</div>
+              <div class="text-sm text-gray-500">${lang==='en'?c.desc.en:c.desc.cy}</div>
+            </div>
+          </div>
+          <div class="text-2xl font-light">${c.temp}°</div>
+        </div>
+      `).join('');
     }
+
     function filterCities() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       const f = allResults.filter(c => c.name.toLowerCase().includes(q) || c.nameCy.toLowerCase().includes(q));
-      if (f.length) renderFeatured(f[0]);
-      renderGrid(f);
+      if (f.length) setFeatured(f[0]);
+      renderList(f);
       updateMarkers(f);
     }
+
     function toggleLang() {
       lang = lang === 'en' ? 'cy' : 'en';
       document.getElementById('langLabel').textContent = lang === 'en' ? 'Cymraeg' : 'English';
-      if (allResults.length) {
-        renderFeatured(allResults[0]);
-        filterCities();
-      }
+      if (featured) setFeatured(featured);
+      filterCities();
     }
+
     initMap();
     load();
   </script>
 </body>
 </html>
-<!-- map fix -->
