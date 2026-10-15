@@ -5,112 +5,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>weather.wales | Tywydd Cymru</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
-    .welsh-accent { background: linear-gradient(135deg, #c8102e, #006400); }
-    .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5); }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; }
   </style>
 </head>
-<body class="gradient-bg text-white min-h-screen">
+<body class="text-slate-800">
   <!-- Header -->
-  <header class="welsh-accent py-6 shadow-lg">
-    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <span class="text-5xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
         <div>
-          <h1 class="text-4xl font-extrabold tracking-tight">weather.wales</h1>
-          <p class="text-sm opacity-90" data-en="Wales Weather" data-cy="Tywydd Cymru">Wales Weather</p>
+          <h1 class="text-2xl font-bold text-blue-700">weather.wales</h1>
+          <p class="text-xs text-slate-500" data-en="Wales Weather" data-cy="Tywydd Cymru">Wales Weather</p>
         </div>
       </div>
-      <div class="flex items-center gap-4">
-        <button id="langBtn" onclick="toggleLang()" class="bg-white/20 hover:bg-white/30 px-5 py-2 rounded-full font-semibold text-sm transition">
-          <span id="langLabel">Cymraeg</span>
-        </button>
-      </div>
+      <button onclick="toggleLang()" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+        <span id="langLabel">Cymraeg</span>
+      </button>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="py-16 text-center">
-    <h2 class="text-5xl md:text-6xl font-extrabold mb-4" data-en="Weather Across Cymru" data-cy="Tywydd ar Draws Cymru">Weather Across Cymru</h2>
-    <p class="text-xl text-slate-300 max-w-2xl mx-auto" data-en="Live forecasts across Wales — from the south coast to the mountains of the north. Simple, beautiful, and memorable." data-cy="Rhagolygon byw ar draws Cymru — o arfordir y de i fynyddoedd y gogledd. Syml, hardd, a chofiadwy.">
-      Live forecasts across Wales — from the south coast to the mountains of the north. Simple, beautiful, and memorable.
-    </p>
-  </section>
-
-  <!-- Map -->
-  <div class="max-w-7xl mx-auto px-6 pb-12">
-    <div id="map" class="h-[500px] rounded-3xl overflow-hidden border border-white/10 shadow-2xl"></div>
-  </div>
-
   <!-- Search -->
-  <div class="max-w-2xl mx-auto px-6 pb-8">
-    <input id="searchInput" type="text" placeholder="Search any town or city..." 
-           class="w-full px-6 py-4 rounded-2xl bg-slate-800/80 border border-white/10 text-white text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-           oninput="filterCities()">
-  </div>
-
-  <!-- Cities Grid -->
-  <div class="max-w-7xl mx-auto px-6 pb-16">
-    <div id="weatherGrid" class="space-y-12">
-      <!-- Populated by JS -->
+  <div class="bg-white border-b border-slate-200">
+    <div class="max-w-3xl mx-auto px-4 py-4">
+      <div class="relative">
+        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input id="searchInput" type="text" placeholder="Search city or town in Wales..." 
+               class="w-full pl-12 pr-4 py-3 rounded-full border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+               oninput="filterCities()">
+      </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="bg-slate-950 py-10 text-center text-slate-400 text-sm">
-    <p data-en="weather.wales • Live data via Open-Meteo • Made for Cymru" data-cy="weather.wales • Data byw trwy Open-Meteo • Wedi'i wneud i Gymru">
-      weather.wales • Live data via Open-Meteo • Made for Cymru
-    </p>
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <!-- Featured Location -->
+    <div id="featured" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+      <!-- Filled by JS -->
+    </div>
+
+    <!-- Map -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+      <div id="map" class="h-80"></div>
+    </div>
+
+    <!-- Regional Forecasts -->
+    <div id="weatherGrid" class="space-y-10">
+      <!-- Filled by JS -->
+    </div>
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-sm text-slate-500">
+    <p>weather.wales • Live data via Open-Meteo • Made for Cymru</p>
   </footer>
 
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-
     const cities = [
       { name: "Cardiff", nameCy: "Caerdydd", lat: 51.4816, lon: -3.1791 },
       { name: "Swansea", nameCy: "Abertawe", lat: 51.6214, lon: -3.9436 },
       { name: "Newport", nameCy: "Casnewydd", lat: 51.5842, lon: -2.9977 },
-      { name: "Barry", nameCy: "Y Barri", lat: 51.3998, lon: -3.2838 },
-      { name: "Bridgend", nameCy: "Pen-y-bont ar Ogwr", lat: 51.5045, lon: -3.5769 },
-      { name: "Merthyr Tydfil", nameCy: "Merthyr Tudful", lat: 51.7476, lon: -3.3778 },
-      { name: "Pontypridd", nameCy: "Pontypridd", lat: 51.6018, lon: -3.3421 },
-      { name: "Caerphilly", nameCy: "Caerffili", lat: 51.5745, lon: -3.2180 },
-      { name: "Cwmbran", nameCy: "Cwmbrân", lat: 51.6544, lon: -3.0228 },
-      { name: "Ebbw Vale", nameCy: "Glynebwy", lat: 51.7775, lon: -3.2075 },
-      { name: "Aberystwyth", nameCy: "Aberystwyth", lat: 52.4153, lon: -4.0829 },
-      { name: "Brecon", nameCy: "Aberhonddu", lat: 51.9461, lon: -3.3886 },
-      { name: "Newtown", nameCy: "Y Drenewydd", lat: 52.5140, lon: -3.3145 },
-      { name: "Welshpool", nameCy: "Y Trallwng", lat: 52.6601, lon: -3.1474 },
-      { name: "Machynlleth", nameCy: "Machynlleth", lat: 52.5905, lon: -3.8518 },
-      { name: "Llandrindod Wells", nameCy: "Llandrindod", lat: 52.2411, lon: -3.3784 },
-      { name: "Carmarthen", nameCy: "Caerfyrddin", lat: 51.8560, lon: -4.3095 },
-      { name: "Haverfordwest", nameCy: "Hwlffordd", lat: 51.8017, lon: -4.9691 },
-      { name: "Cardigan", nameCy: "Aberteifi", lat: 52.0837, lon: -4.6602 },
-      { name: "Tenby", nameCy: "Dinbych-y-pysgod", lat: 51.6728, lon: -4.7061 },
-      { name: "Pembroke", nameCy: "Penfro", lat: 51.6761, lon: -4.9147 },
-      { name: "Fishguard", nameCy: "Abergwaun", lat: 51.9939, lon: -4.9761 },
       { name: "Bangor", nameCy: "Bangor", lat: 53.2274, lon: -4.1293 },
+      { name: "Aberystwyth", nameCy: "Aberystwyth", lat: 52.4153, lon: -4.0829 },
       { name: "Wrexham", nameCy: "Wrecsam", lat: 53.0430, lon: -2.9930 },
       { name: "Caernarfon", nameCy: "Caernarfon", lat: 53.1413, lon: -4.2702 },
       { name: "Llandudno", nameCy: "Llandudno", lat: 53.3240, lon: -3.8274 },
-      { name: "Conwy", nameCy: "Conwy", lat: 53.2804, lon: -3.8265 },
-      { name: "Holyhead", nameCy: "Caergybi", lat: 53.3094, lon: -4.6331 },
-      { name: "Rhyl", nameCy: "Y Rhyl", lat: 53.3190, lon: -3.4920 },
-      { name: "Colwyn Bay", nameCy: "Bae Colwyn", lat: 53.2947, lon: -3.7269 },
-      { name: "Porthmadog", nameCy: "Porthmadog", lat: 52.9293, lon: -4.1314 },
-      { name: "Bala", nameCy: "Y Bala", lat: 52.9111, lon: -3.5972 }
+      { name: "Haverfordwest", nameCy: "Hwlffordd", lat: 51.8017, lon: -4.9691 },
+      { name: "Carmarthen", nameCy: "Caerfyrddin", lat: 51.8560, lon: -4.3095 }
     ];
 
     const regions = {
-      "South Wales": ["Cardiff", "Swansea", "Newport", "Barry", "Bridgend", "Merthyr Tydfil", "Pontypridd", "Caerphilly", "Cwmbran", "Ebbw Vale"],
-      "Mid Wales": ["Aberystwyth", "Brecon", "Newtown", "Welshpool", "Machynlleth", "Llandrindod Wells"],
-      "West Wales": ["Carmarthen", "Haverfordwest", "Cardigan", "Tenby", "Pembroke", "Fishguard"],
-      "North Wales": ["Bangor", "Wrexham", "Caernarfon", "Llandudno", "Conwy", "Holyhead", "Rhyl", "Colwyn Bay", "Porthmadog", "Bala"]
+      "South Wales": ["Cardiff", "Swansea", "Newport"],
+      "Mid Wales": ["Aberystwyth"],
+      "West Wales": ["Haverfordwest", "Carmarthen"],
+      "North Wales": ["Bangor", "Wrexham", "Caernarfon", "Llandudno"]
     };
 
     let lang = 'en';
@@ -119,92 +91,103 @@
     let markers = [];
 
     const weatherCodes = {
-      0: { en: "Clear sky", cy: "Awyr glir", icon: "☀️" },
+      0: { en: "Clear", cy: "Glir", icon: "☀️" },
       1: { en: "Mainly clear", cy: "Yn bennaf glir", icon: "🌤️" },
       2: { en: "Partly cloudy", cy: "Cymylog yn rhannol", icon: "⛅" },
       3: { en: "Overcast", cy: "Cwmwlog", icon: "☁️" },
-      45: { en: "Fog", cy: "Niwl", icon: "🌫️" },
-      48: { en: "Depositing rime fog", cy: "Niwl rhewllyd", icon: "🌫️" },
-      51: { en: "Light drizzle", cy: "Glaw mân ysgafn", icon: "🌦️" },
-      61: { en: "Slight rain", cy: "Glaw ysgafn", icon: "🌧️" },
-      63: { en: "Moderate rain", cy: "Glaw cymedrol", icon: "🌧️" },
-      65: { en: "Heavy rain", cy: "Glaw trwm", icon: "⛈️" },
-      71: { en: "Slight snow", cy: "Eira ysgafn", icon: "🌨️" },
-      80: { en: "Slight rain showers", cy: "Cawodydd glaw ysgafn", icon: "🌦️" },
-      95: { en: "Thunderstorm", cy: "Storm mellt", icon: "⛈️" }
+      61: { en: "Rain", cy: "Glaw", icon: "🌧️" },
+      95: { en: "Thunderstorm", cy: "Storm", icon: "⛈️" }
     };
 
     function getWeatherDesc(code) {
-      return weatherCodes[code] || { en: "Unknown", cy: "Anhysbys", icon: "❓" };
+      return weatherCodes[code] || { en: "Cloudy", cy: "Cwmwlog", icon: "☁️" };
     }
 
     function initMap() {
       map = L.map('map').setView([52.3, -3.8], 7);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO'
       }).addTo(map);
     }
 
     function updateMarkers(data) {
-      if (!map) return;
       markers.forEach(m => map.removeLayer(m));
       markers = [];
       data.forEach(city => {
-        const marker = L.marker([city.lat, city.lon]).addTo(map);
-        marker.bindPopup(`<strong>${lang === 'en' ? city.name : city.nameCy}</strong><br>${city.temp}°C ${city.desc.icon}<br>${lang === 'en' ? city.desc.en : city.desc.cy}`);
-        markers.push(marker);
+        const m = L.marker([city.lat, city.lon]).addTo(map);
+        m.bindPopup(`<b>${lang === 'en' ? city.name : city.nameCy}</b><br>${city.temp}° ${city.desc.icon}`);
+        markers.push(m);
       });
     }
 
     async function loadWeather() {
-      const grid = document.getElementById('weatherGrid');
-      grid.innerHTML = '<div class="text-center py-12 text-2xl">Loading live weather...</div>';
+      document.getElementById('weatherGrid').innerHTML = '<div class="text-center py-8 text-slate-500">Loading forecasts...</div>';
       const promises = cities.map(async (city) => {
         try {
           const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe/London`);
           const data = await res.json();
-          const current = data.current;
-          const desc = getWeatherDesc(current.weather_code);
-          return { ...city, temp: Math.round(current.temperature_2m), wind: Math.round(current.wind_speed_10m), desc };
-        } catch (e) {
-          return { ...city, temp: "--", wind: "--", desc: { en: "Unavailable", cy: "Ddim ar gael", icon: "⚠️" } };
+          const c = data.current;
+          const desc = getWeatherDesc(c.weather_code);
+          return { ...city, temp: Math.round(c.temperature_2m), wind: Math.round(c.wind_speed_10m), desc };
+        } catch {
+          return { ...city, temp: "--", wind: "--", desc: { en: "N/A", cy: "N/A", icon: "⚠️" } };
         }
       });
       allResults = await Promise.all(promises);
+      renderFeatured(allResults[0]);
       renderRegions(allResults);
       updateMarkers(allResults);
+    }
+
+    function renderFeatured(city) {
+      document.getElementById('featured').innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h2 class="text-4xl font-bold">${lang === 'en' ? city.name : city.nameCy}</h2>
+            <p class="text-slate-500">${lang === 'en' ? city.nameCy : city.name}</p>
+            <div class="text-7xl font-light mt-2">${city.temp}°</div>
+            <p class="text-xl text-slate-600">${lang === 'en' ? city.desc.en : city.desc.cy}</p>
+          </div>
+          <div class="text-8xl">${city.desc.icon}</div>
+        </div>
+        <div class="mt-6 flex gap-8 text-sm text-slate-500">
+          <div><i class="fas fa-wind mr-1"></i> ${city.wind} km/h</div>
+        </div>
+      `;
     }
 
     function renderRegions(data) {
       const grid = document.getElementById('weatherGrid');
       let html = '';
       for (const [region, names] of Object.entries(regions)) {
-        const regionCities = data.filter(c => names.includes(c.name));
-        if (regionCities.length === 0) continue;
-        html += `<div><h3 class="text-3xl font-bold mb-6 text-emerald-400">${region}</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">` +
-          regionCities.map(city => `
-            <div class="card bg-slate-800/80 backdrop-blur rounded-3xl overflow-hidden border border-white/10">
-              <div class="p-8">
-                <div class="flex justify-between items-start mb-4">
+        const list = data.filter(c => names.includes(c.name));
+        if (!list.length) continue;
+        html += `<section>
+          <h3 class="text-xl font-semibold mb-4">${region}</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            ${list.map(city => `
+              <div class="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition cursor-pointer" onclick="renderFeatured(${JSON.stringify(city).replace(/"/g, '"')})">
+                <div class="flex justify-between items-start">
                   <div>
-                    <h3 class="text-2xl font-bold">${lang === 'en' ? city.name : city.nameCy}</h3>
-                    <p class="text-slate-400 text-sm">${lang === 'en' ? city.nameCy : city.name}</p>
+                    <h4 class="font-semibold text-lg">${lang === 'en' ? city.name : city.nameCy}</h4>
+                    <p class="text-sm text-slate-500">${lang === 'en' ? city.desc.en : city.desc.cy}</p>
                   </div>
-                  <span class="text-5xl">${city.desc.icon}</span>
+                  <span class="text-4xl">${city.desc.icon}</span>
                 </div>
-                <div class="text-6xl font-extrabold mb-2">${city.temp}°C</div>
-                <p class="text-xl text-emerald-300 mb-4">${lang === 'en' ? city.desc.en : city.desc.cy}</p>
-                <div class="flex gap-6 text-sm text-slate-400"><div><i class="fas fa-wind mr-2"></i>${city.wind} km/h</div></div>
+                <div class="text-4xl font-light mt-3">${city.temp}°</div>
+                <p class="text-sm text-slate-400 mt-1"><i class="fas fa-wind"></i> ${city.wind} km/h</p>
               </div>
-            </div>
-          `).join('') + '</div></div>';
+            `).join('')}
+          </div>
+        </section>`;
       }
-      grid.innerHTML = html || '<div class="text-center py-12 text-slate-400">No matches found.</div>';
+      grid.innerHTML = html;
     }
 
     function filterCities() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = allResults.filter(c => c.name.toLowerCase().includes(query) || c.nameCy.toLowerCase().includes(query));
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allResults.filter(c => c.name.toLowerCase().includes(q) || c.nameCy.toLowerCase().includes(q));
+      if (filtered.length) renderFeatured(filtered[0]);
       renderRegions(filtered);
       updateMarkers(filtered);
     }
@@ -212,15 +195,15 @@
     function toggleLang() {
       lang = lang === 'en' ? 'cy' : 'en';
       document.getElementById('langLabel').textContent = lang === 'en' ? 'Cymraeg' : 'English';
-      document.querySelectorAll('[data-en]').forEach(el => {
-        el.textContent = lang === 'en' ? el.dataset.en : el.dataset.cy;
-      });
-      filterCities();
+      document.querySelectorAll('[data-en]').forEach(el => el.textContent = lang === 'en' ? el.dataset.en : el.dataset.cy);
+      if (allResults.length) {
+        renderFeatured(allResults[0]);
+        filterCities();
+      }
     }
 
     initMap();
     loadWeather();
-
   </script>
 </body>
 </html>
