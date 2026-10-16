@@ -74,6 +74,13 @@
       .icon-throb { animation-duration: 3s; }
     }
 
+  
+    @media (max-width: 640px) {
+      #current .text-6xl { font-size: 3.5rem; }
+      #current { overflow: visible; }
+      .flex { min-width: 0; }
+    }
+
   </style>
 </head>
 <body class="min-h-screen">
@@ -113,7 +120,7 @@
       <!-- Main column -->
       <div class="lg:col-span-2 space-y-6">
         <!-- Current -->
-        <div id="current" class="glass rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden">
+        <div id="current" class="glass rounded-3xl p-4 sm:p-8 shadow-xl relative overflow-hidden">
           Loading current conditions...
         </div>
 
@@ -284,7 +291,7 @@
       const name = lang === 'en' ? c.name : c.nameCy;
       const other = lang === 'en' ? c.nameCy : c.name;
       document.getElementById('current').innerHTML = `
-        <div class="flex items-center justify-between relative z-10">
+        <div class="flex items-center justify-between relative z-10 gap-2">
           <div>
             <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold">${name}</h1>
             <p class="opacity-70">${other}</p>
@@ -292,7 +299,7 @@
             <p class="text-2xl font-medium">${lang==='en'?c.desc.en:c.desc.cy}</p>
             <p class="text-sm opacity-70 mt-2">💨 ${c.wind} km/h</p>
           </div>
-          <div class="text-7xl sm:text-8xl md:text-9xl icon-throb">${c.desc.icon}</div>
+          <div class="text-6xl sm:text-8xl md:text-9xl icon-throb flex-shrink-0">${c.desc.icon}</div>
         </div>`;
 
       document.getElementById('hourly').innerHTML = (c.hourly || []).slice(0, 12).map(h => `
@@ -320,7 +327,7 @@
       document.getElementById('weatherGrid').innerHTML = data.map(c => `
         <div class="card-hover flex items-center justify-between py-3 px-3 hover:bg-white/50 dark:hover:bg-slate-700/50 rounded-xl cursor-pointer" onclick='setFeatured(${JSON.stringify(c)})'>
           <div class="flex items-center gap-3">
-            <span class="text-3xl">${c.desc.icon}</span>
+            <span class="text-2xl sm:text-3xl flex-shrink-0">${c.desc.icon}</span>
             <div>
               <div class="font-semibold">${lang==='en'?c.name:c.nameCy}</div>
               <div class="text-xs opacity-60">${lang==='en'?c.desc.en:c.desc.cy}</div>
