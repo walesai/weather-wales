@@ -81,6 +81,12 @@
       .flex { min-width: 0; }
     }
 
+  
+    @media (max-width: 640px) {
+      #current .text-6xl { font-size: 4rem; line-height: 1; }
+      #current { padding-bottom: 1.5rem; }
+    }
+
   </style>
 </head>
 <body class="min-h-screen">
@@ -120,7 +126,7 @@
       <!-- Main column -->
       <div class="lg:col-span-2 space-y-6">
         <!-- Current -->
-        <div id="current" class="glass rounded-3xl p-4 sm:p-8 shadow-xl relative overflow-hidden">
+        <div id="current" class="glass rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl relative overflow-hidden">
           Loading current conditions...
         </div>
 
@@ -291,7 +297,7 @@
       const name = lang === 'en' ? c.name : c.nameCy;
       const other = lang === 'en' ? c.nameCy : c.name;
       document.getElementById('current').innerHTML = `
-        <div class="flex items-center justify-between relative z-10 gap-2">
+        <div class="flex flex-col sm:flex-row items-center justify-between relative z-10 gap-4 sm:gap-2">
           <div>
             <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold">${name}</h1>
             <p class="opacity-70">${other}</p>
@@ -299,7 +305,7 @@
             <p class="text-2xl font-medium">${lang==='en'?c.desc.en:c.desc.cy}</p>
             <p class="text-sm opacity-70 mt-2">💨 ${c.wind} km/h</p>
           </div>
-          <div class="text-6xl sm:text-8xl md:text-9xl icon-throb flex-shrink-0">${c.desc.icon}</div>
+          <div class="text-6xl sm:text-7xl md:text-9xl icon-throb flex-shrink-0 order-first sm:order-last">${c.desc.icon}</div>
         </div>`;
 
       document.getElementById('hourly').innerHTML = (c.hourly || []).slice(0, 12).map(h => `
