@@ -31,11 +31,15 @@
     }
     .glass {
       background: var(--glass);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.3);
+      backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.4);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
     }
-    html.dark .glass { border-color: rgba(255,255,255,0.1); }
-    .temp-glow { text-shadow: 0 4px 30px rgba(14, 165, 233, 0.4); }
+    html.dark .glass {
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .temp-glow { text-shadow: 0 6px 40px rgba(14, 165, 233, 0.5); }
     .card-hover { transition: all 0.25s ease; }
     .card-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 30px -8px rgb(0 0 0 / 0.15); }
 
@@ -193,16 +197,23 @@
       if (anim === 'rain') body.classList.add('rain');
       if (anim === 'sun') body.classList.add('sun-rays');
 
-      // Dynamic gradient
+      const root = document.documentElement;
       if (anim === 'sun') {
-        document.documentElement.style.setProperty('--bg-from', darkMode ? '#1e293b' : '#fef3c7');
-        document.documentElement.style.setProperty('--bg-to', darkMode ? '#0f172a' : '#fde68a');
+        root.style.setProperty('--bg-from', darkMode ? '#1e1b4b' : '#fef08a');
+        root.style.setProperty('--bg-to', darkMode ? '#0f172a' : '#fdba74');
+        root.style.setProperty('--accent', darkMode ? '#fbbf24' : '#f59e0b');
       } else if (anim === 'rain') {
-        document.documentElement.style.setProperty('--bg-from', darkMode ? '#1e3a8a' : '#bfdbfe');
-        document.documentElement.style.setProperty('--bg-to', darkMode ? '#0f172a' : '#93c5fd');
+        root.style.setProperty('--bg-from', darkMode ? '#1e3a8a' : '#93c5fd');
+        root.style.setProperty('--bg-to', darkMode ? '#0f172a' : '#60a5fa');
+        root.style.setProperty('--accent', '#3b82f6');
+      } else if (anim === 'snow') {
+        root.style.setProperty('--bg-from', darkMode ? '#1e293b' : '#e0f2fe');
+        root.style.setProperty('--bg-to', darkMode ? '#0f172a' : '#f0f9ff');
+        root.style.setProperty('--accent', '#64748b');
       } else {
-        document.documentElement.style.setProperty('--bg-from', darkMode ? '#0f172a' : '#e0f2fe');
-        document.documentElement.style.setProperty('--bg-to', darkMode ? '#1e293b' : '#fefce8');
+        root.style.setProperty('--bg-from', darkMode ? '#0f172a' : '#e0f2fe');
+        root.style.setProperty('--bg-to', darkMode ? '#1e293b' : '#fefce8');
+        root.style.setProperty('--accent', darkMode ? '#38bdf8' : '#0284c7');
       }
     }
 
