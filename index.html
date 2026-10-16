@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="transition-colors duration-500">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,27 +8,76 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #fefce8 100%); }
-    .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.4); }
-    .temp-glow { text-shadow: 0 4px 20px rgba(14, 165, 233, 0.3); }
-    .card-hover { transition: all 0.2s ease; }
-    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); }
+    :root {
+      --bg-from: #e0f2fe;
+      --bg-to: #fefce8;
+      --text: #1e293b;
+      --glass: rgba(255,255,255,0.85);
+      --accent: #0284c7;
+    }
+    html.dark {
+      --bg-from: #0f172a;
+      --bg-to: #1e293b;
+      --text: #f1f5f9;
+      --glass: rgba(30,41,59,0.85);
+      --accent: #38bdf8;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 1s ease;
+    }
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    html.dark .glass { border-color: rgba(255,255,255,0.1); }
+    .temp-glow { text-shadow: 0 4px 30px rgba(14, 165, 233, 0.4); }
+    .card-hover { transition: all 0.25s ease; }
+    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 30px -8px rgb(0 0 0 / 0.15); }
+
+    /* Animations */
+    .rain { position: relative; overflow: hidden; }
+    .rain::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(transparent, transparent 10px, rgba(255,255,255,0.15) 10px, rgba(255,255,255,0.15) 12px);
+      animation: rain 0.6s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes rain { from { transform: translateY(-20px); } to { transform: translateY(20px); } }
+    .sun-rays {
+      animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse { 50% { opacity: 0.7; transform: scale(1.05); } }
+
+    /* Dark mode toggle */
+    .toggle-btn { transition: all 0.2s; }
   </style>
 </head>
-<body class="text-slate-800 min-h-screen">
+<body class="min-h-screen">
   <!-- Header -->
-  <header class="glass sticky top-0 z-50">
+  <header class="glass sticky top-0 z-50 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <span class="text-3xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
+        <span class="text-3xl dragon">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
         <div>
-          <span class="font-extrabold text-2xl bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">weather.wales</span>
-          <p class="text-xs text-slate-500 -mt-1">Tywydd Cymru</p>
+          <span class="font-extrabold text-2xl bg-gradient-to-r from-sky-600 to-red-600 bg-clip-text text-transparent">weather.wales</span>
+          <p class="text-xs opacity-70 -mt-1">Tywydd Cymru • Cymru Weather</p>
         </div>
       </div>
-      <button onclick="toggleLang()" class="px-4 py-2 rounded-full bg-sky-100 text-sky-700 text-sm font-semibold hover:bg-sky-200 transition">
-        <span id="langLabel">Cymraeg</span>
-      </button>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleLang()" class="px-4 py-2 rounded-full bg-sky-100 dark:bg-slate-700 text-sky-700 dark:text-sky-300 text-sm font-semibold hover:bg-sky-200 transition">
+          <span id="langLabel">Cymraeg</span>
+        </button>
+        <button onclick="toggleDark()" class="toggle-btn w-10 h-10 rounded-full glass flex items-center justify-center text-lg" title="Dark mode">
+          <span id="darkIcon">🌙</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -36,25 +85,31 @@
   <div class="max-w-2xl mx-auto px-4 py-6">
     <div class="relative">
       <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-      <input id="searchInput" type="text" placeholder="Search any town or city in Wales..."
-             class="w-full pl-12 pr-6 py-4 rounded-2xl glass shadow-lg text-lg focus:outline-none focus:ring-4 focus:ring-sky-200 transition"
+      <input id="searchInput" type="text" placeholder="Search any town or city in Wales / Chwilio tref neu ddinas..."
+             class="w-full pl-12 pr-6 py-4 rounded-2xl glass shadow-lg text-lg focus:outline-none focus:ring-4 focus:ring-sky-300 dark:focus:ring-sky-600 transition"
              oninput="filterCities()">
     </div>
   </div>
 
   <main class="max-w-7xl mx-auto px-4 pb-12">
     <div class="grid lg:grid-cols-3 gap-6">
-      <!-- Main -->
+      <!-- Main column -->
       <div class="lg:col-span-2 space-y-6">
         <!-- Current -->
-        <div id="current" class="glass rounded-3xl p-8 shadow-xl">
-          Loading...
+        <div id="current" class="glass rounded-3xl p-8 shadow-xl relative overflow-hidden">
+          Loading current conditions...
         </div>
 
         <!-- Hourly -->
         <div class="glass rounded-3xl p-6 shadow-lg">
-          <h3 class="font-bold text-lg mb-4 text-slate-700">Hourly Forecast</h3>
-          <div id="hourly" class="flex gap-4 overflow-x-auto pb-2"></div>
+          <h3 class="font-bold text-lg mb-4">Hourly Forecast • Rhagolwg Awr</h3>
+          <div id="hourly" class="flex gap-3 overflow-x-auto pb-2"></div>
+        </div>
+
+        <!-- 10-Day -->
+        <div class="glass rounded-3xl p-6 shadow-lg">
+          <h3 class="font-bold text-lg mb-4">10-Day Forecast • Rhagolwg 10 Diwrnod</h3>
+          <div id="daily" class="space-y-2"></div>
         </div>
 
         <!-- Map -->
@@ -65,13 +120,16 @@
 
       <!-- Sidebar -->
       <div class="glass rounded-3xl p-6 shadow-lg">
-        <h3 class="font-bold text-lg mb-4 text-slate-700">Locations across Wales</h3>
-        <div id="weatherGrid" class="space-y-2 max-h-[700px] overflow-y-auto pr-2"></div>
+        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+          <span>Locations across Wales</span>
+          <span class="text-xl">🐉</span>
+        </h3>
+        <div id="weatherGrid" class="space-y-1 max-h-[800px] overflow-y-auto pr-2"></div>
       </div>
     </div>
   </main>
 
-  <footer class="text-center py-8 text-sm text-slate-500">
+  <footer class="text-center py-8 text-sm opacity-70">
     weather.wales • Live data from Open-Meteo • Made with ❤️ for Cymru 🏴󠁧󠁢󠁷󠁬󠁳󠁿
   </footer>
 
@@ -114,16 +172,39 @@
     let allResults = [];
     let map, markers = [];
     let featured = null;
+    let darkMode = false;
 
     const codes = {
-      0: { en: "Clear sky", cy: "Awyr glir", icon: "☀️" },
-      1: { en: "Mostly clear", cy: "Yn bennaf glir", icon: "🌤️" },
-      2: { en: "Partly cloudy", cy: "Cymylog yn rhannol", icon: "⛅" },
-      3: { en: "Overcast", cy: "Cwmwlog", icon: "☁️" },
-      61: { en: "Rain", cy: "Glaw", icon: "🌧️" },
-      95: { en: "Thunderstorm", cy: "Storm", icon: "⛈️" }
+      0: { en: "Clear sky", cy: "Awyr glir", icon: "☀️", anim: "sun" },
+      1: { en: "Mostly clear", cy: "Yn bennaf glir", icon: "🌤️", anim: "sun" },
+      2: { en: "Partly cloudy", cy: "Cymylog yn rhannol", icon: "⛅", anim: "cloud" },
+      3: { en: "Overcast", cy: "Cwmwlog", icon: "☁️", anim: "cloud" },
+      45: { en: "Fog", cy: "Niwl", icon: "🌫️", anim: "fog" },
+      61: { en: "Rain", cy: "Glaw", icon: "🌧️", anim: "rain" },
+      63: { en: "Heavy rain", cy: "Glaw trwm", icon: "🌧️", anim: "rain" },
+      71: { en: "Snow", cy: "Eira", icon: "❄️", anim: "snow" },
+      95: { en: "Thunderstorm", cy: "Storm", icon: "⛈️", anim: "rain" }
     };
-    function desc(code) { return codes[code] || { en: "Cloudy", cy: "Cwmwlog", icon: "☁️" }; }
+    function desc(code) { return codes[code] || { en: "Cloudy", cy: "Cwmwlog", icon: "☁️", anim: "cloud" }; }
+
+    function setWeatherTheme(anim) {
+      const body = document.body;
+      body.classList.remove('rain', 'sun-rays');
+      if (anim === 'rain') body.classList.add('rain');
+      if (anim === 'sun') body.classList.add('sun-rays');
+
+      // Dynamic gradient
+      if (anim === 'sun') {
+        document.documentElement.style.setProperty('--bg-from', darkMode ? '#1e293b' : '#fef3c7');
+        document.documentElement.style.setProperty('--bg-to', darkMode ? '#0f172a' : '#fde68a');
+      } else if (anim === 'rain') {
+        document.documentElement.style.setProperty('--bg-from', darkMode ? '#1e3a8a' : '#bfdbfe');
+        document.documentElement.style.setProperty('--bg-to', darkMode ? '#0f172a' : '#93c5fd');
+      } else {
+        document.documentElement.style.setProperty('--bg-from', darkMode ? '#0f172a' : '#e0f2fe');
+        document.documentElement.style.setProperty('--bg-to', darkMode ? '#1e293b' : '#fefce8');
+      }
+    }
 
     function initMap() {
       map = L.map('map').setView([52.3, -3.8], 7);
@@ -144,9 +225,11 @@
     }
 
     async function load() {
+      document.getElementById('weatherGrid').innerHTML = '<p class="opacity-60">Loading live weather for Cymru...</p>';
       const results = await Promise.all(cities.map(async city => {
         try {
-          const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&timezone=Europe/London`);
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=Europe/London&forecast_days=10`;
+          const r = await fetch(url);
           const d = await r.json();
           const cur = d.current;
           const hourly = d.hourly.time.slice(0, 24).map((t, i) => ({
@@ -154,9 +237,15 @@
             temp: Math.round(d.hourly.temperature_2m[i]),
             code: d.hourly.weather_code[i]
           }));
-          return { ...city, temp: Math.round(cur.temperature_2m), wind: Math.round(cur.wind_speed_10m), desc: desc(cur.weather_code), hourly };
+          const daily = d.daily.time.slice(0, 10).map((t, i) => ({
+            day: new Date(t).toLocaleDateString(lang === 'cy' ? 'cy-GB' : 'en-GB', { weekday: 'short' }),
+            max: Math.round(d.daily.temperature_2m_max[i]),
+            min: Math.round(d.daily.temperature_2m_min[i]),
+            code: d.daily.weather_code[i]
+          }));
+          return { ...city, temp: Math.round(cur.temperature_2m), wind: Math.round(cur.wind_speed_10m), desc: desc(cur.weather_code), hourly, daily };
         } catch {
-          return { ...city, temp: "--", wind: "--", desc: { en: "N/A", cy: "N/A", icon: "⚠️" }, hourly: [] };
+          return { ...city, temp: "--", wind: "--", desc: { en: "Unavailable", cy: "Ddim ar gael", icon: "⚠️", anim: "cloud" }, hourly: [], daily: [] };
         }
       }));
       allResults = results;
@@ -167,37 +256,53 @@
 
     function setFeatured(c) {
       featured = c;
+      setWeatherTheme(c.desc.anim || 'cloud');
+      const name = lang === 'en' ? c.name : c.nameCy;
+      const other = lang === 'en' ? c.nameCy : c.name;
       document.getElementById('current').innerHTML = `
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between relative z-10">
           <div>
-            <h1 class="text-4xl font-extrabold">${lang==='en'?c.name:c.nameCy}</h1>
-            <p class="text-slate-500">${lang==='en'?c.nameCy:c.name}</p>
-            <div class="text-8xl font-light temp-glow text-sky-700 my-4">${c.temp}°</div>
+            <h1 class="text-4xl md:text-5xl font-extrabold">${name}</h1>
+            <p class="opacity-70">${other}</p>
+            <div class="text-8xl font-light temp-glow my-4" style="color: var(--accent)">${c.temp}°</div>
             <p class="text-2xl font-medium">${lang==='en'?c.desc.en:c.desc.cy}</p>
-            <p class="text-sm text-slate-500 mt-2">💨 ${c.wind} km/h</p>
+            <p class="text-sm opacity-70 mt-2">💨 ${c.wind} km/h</p>
           </div>
-          <div class="text-9xl">${c.desc.icon}</div>
+          <div class="text-9xl ${c.desc.anim === 'sun' ? 'sun-rays' : ''}">${c.desc.icon}</div>
         </div>`;
+
       document.getElementById('hourly').innerHTML = (c.hourly || []).slice(0, 12).map(h => `
-        <div class="text-center min-w-[70px] bg-white/60 rounded-xl p-3">
-          <div class="text-xs text-slate-500">${h.hour}:00</div>
+        <div class="text-center min-w-[72px] glass rounded-xl p-3 flex-shrink-0">
+          <div class="text-xs opacity-70">${h.hour}:00</div>
           <div class="text-3xl my-1">${desc(h.code).icon}</div>
-          <div class="font-bold text-sky-700">${h.temp}°</div>
+          <div class="font-bold" style="color: var(--accent)">${h.temp}°</div>
+        </div>
+      `).join('');
+
+      document.getElementById('daily').innerHTML = (c.daily || []).map(d => `
+        <div class="flex items-center justify-between py-2 border-b border-slate-200 dark:border-slate-700 last:border-0">
+          <span class="font-medium w-16">${d.day}</span>
+          <span class="text-2xl">${desc(d.code).icon}</span>
+          <span class="text-sm opacity-70">${d.min}°</span>
+          <div class="flex-1 mx-4 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-blue-400 to-red-400 rounded-full" style="width: ${Math.min(100, (d.max - d.min + 10) * 4)}%"></div>
+          </div>
+          <span class="font-semibold">${d.max}°</span>
         </div>
       `).join('');
     }
 
     function renderList(data) {
       document.getElementById('weatherGrid').innerHTML = data.map(c => `
-        <div class="card-hover flex items-center justify-between py-3 px-3 hover:bg-white/60 rounded-xl cursor-pointer" onclick='setFeatured(${JSON.stringify(c)})'>
+        <div class="card-hover flex items-center justify-between py-3 px-3 hover:bg-white/50 dark:hover:bg-slate-700/50 rounded-xl cursor-pointer" onclick='setFeatured(${JSON.stringify(c)})'>
           <div class="flex items-center gap-3">
             <span class="text-3xl">${c.desc.icon}</span>
             <div>
               <div class="font-semibold">${lang==='en'?c.name:c.nameCy}</div>
-              <div class="text-xs text-slate-500">${lang==='en'?c.desc.en:c.desc.cy}</div>
+              <div class="text-xs opacity-60">${lang==='en'?c.desc.en:c.desc.cy}</div>
             </div>
           </div>
-          <div class="text-2xl font-light text-sky-700">${c.temp}°</div>
+          <div class="text-2xl font-light" style="color: var(--accent)">${c.temp}°</div>
         </div>
       `).join('');
     }
@@ -215,6 +320,13 @@
       document.getElementById('langLabel').textContent = lang === 'en' ? 'Cymraeg' : 'English';
       if (featured) setFeatured(featured);
       filterCities();
+    }
+
+    function toggleDark() {
+      darkMode = !darkMode;
+      document.documentElement.classList.toggle('dark', darkMode);
+      document.getElementById('darkIcon').textContent = darkMode ? '☀️' : '🌙';
+      if (featured) setWeatherTheme(featured.desc.anim || 'cloud');
     }
 
     initMap();
