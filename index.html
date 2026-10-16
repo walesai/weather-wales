@@ -67,12 +67,19 @@
 
     /* Dark mode toggle */
     .toggle-btn { transition: all 0.2s; }
+  
+    @media (max-width: 640px) {
+      .text-9xl { font-size: 4.5rem; }
+      .text-8xl { font-size: 4rem; }
+      .icon-throb { animation-duration: 3s; }
+    }
+
   </style>
 </head>
 <body class="min-h-screen">
   <!-- Header -->
   <header class="glass sticky top-0 z-50 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <span class="text-3xl dragon">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
         <div>
@@ -95,18 +102,18 @@
   <div class="max-w-2xl mx-auto px-4 py-6">
     <div class="relative">
       <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-      <input id="searchInput" type="text" placeholder="Search any town or city in Wales / Chwilio tref neu ddinas..."
+      <input id="searchInput" type="text" placeholder="Search Wales / Chwilio Cymru..."
              class="w-full pl-12 pr-6 py-4 rounded-2xl glass shadow-lg text-lg focus:outline-none focus:ring-4 focus:ring-sky-300 dark:focus:ring-sky-600 transition"
              oninput="filterCities()">
     </div>
   </div>
 
   <main class="max-w-7xl mx-auto px-4 pb-12">
-    <div class="grid lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
       <!-- Main column -->
       <div class="lg:col-span-2 space-y-6">
         <!-- Current -->
-        <div id="current" class="glass rounded-3xl p-8 shadow-xl relative overflow-hidden">
+        <div id="current" class="glass rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden">
           Loading current conditions...
         </div>
 
@@ -124,7 +131,7 @@
 
         <!-- Map -->
         <div class="glass rounded-3xl overflow-hidden shadow-lg">
-          <div id="map" class="h-96"></div>
+          <div id="map" class="h-64 sm:h-80 md:h-96"></div>
         </div>
       </div>
 
@@ -279,17 +286,17 @@
       document.getElementById('current').innerHTML = `
         <div class="flex items-center justify-between relative z-10">
           <div>
-            <h1 class="text-4xl md:text-5xl font-extrabold">${name}</h1>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold">${name}</h1>
             <p class="opacity-70">${other}</p>
-            <div class="text-8xl font-light temp-glow my-4 icon-throb" style="color: var(--accent)">${c.temp}°</div>
+            <div class="text-6xl sm:text-7xl md:text-8xl font-light temp-glow my-2 sm:my-4 icon-throb" style="color: var(--accent)">${c.temp}°</div>
             <p class="text-2xl font-medium">${lang==='en'?c.desc.en:c.desc.cy}</p>
             <p class="text-sm opacity-70 mt-2">💨 ${c.wind} km/h</p>
           </div>
-          <div class="text-9xl icon-throb">${c.desc.icon}</div>
+          <div class="text-7xl sm:text-8xl md:text-9xl icon-throb">${c.desc.icon}</div>
         </div>`;
 
       document.getElementById('hourly').innerHTML = (c.hourly || []).slice(0, 12).map(h => `
-        <div class="text-center min-w-[72px] glass rounded-xl p-3 flex-shrink-0">
+        <div class="text-center min-w-[64px] sm:min-w-[72px] glass rounded-xl p-2 sm:p-3 flex-shrink-0">
           <div class="text-xs opacity-70">${h.hour}:00</div>
           <div class="text-3xl my-1">${desc(h.code).icon}</div>
           <div class="font-bold" style="color: var(--accent)">${h.temp}°</div>
