@@ -261,30 +261,46 @@
       });
     }
 
-    async function load() {
-      document.getElementById('weatherGrid').innerHTML = '<p class="opacity-60">Loading live weather for Cymru...</p>';
-      const results = await Promise.all(cities.map(async city => {
+    async function fetchCity(city, retries = 2) {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=Europe/London&forecast_days=10`;
+      for (let i = 0; i <= retries; i++) {
         try {
-          const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=Europe/London&forecast_days=10`;
           const r = await fetch(url);
+          if (!r.ok) throw new Error('HTTP ' + r.status);
           const d = await r.json();
+          if (!d.current) throw new Error('No current data');
           const cur = d.current;
-          const hourly = d.hourly.time.slice(0, 24).map((t, i) => ({
+          const hourly = (d.hourly?.time || []).slice(0, 24).map((t, i) => ({
             hour: new Date(t).getHours(),
             temp: Math.round(d.hourly.temperature_2m[i]),
             code: d.hourly.weather_code[i]
           }));
-          const daily = d.daily.time.slice(0, 10).map((t, i) => ({
+          const daily = (d.daily?.time || []).slice(0, 10).map((t, i) => ({
             day: new Date(t).toLocaleDateString(lang === 'cy' ? 'cy-GB' : 'en-GB', { weekday: 'short' }),
             max: Math.round(d.daily.temperature_2m_max[i]),
             min: Math.round(d.daily.temperature_2m_min[i]),
             code: d.daily.weather_code[i]
           }));
           return { ...city, temp: Math.round(cur.temperature_2m), wind: Math.round(cur.wind_speed_10m), desc: desc(cur.weather_code), hourly, daily };
-        } catch {
-          return { ...city, temp: "--", wind: "--", desc: { en: "Unavailable", cy: "Ddim ar gael", icon: "⚠️", anim: "cloud" }, hourly: [], daily: [] };
+        } catch (e) {
+          if (i === retries) {
+            console.warn('Failed for', city.name, e);
+            return { ...city, temp: "--", wind: "--", desc: { en: "Unavailable", cy: "Ddim ar gael", icon: "⚠️", anim: "cloud" }, hourly: [], daily: [] };
+          }
+          await new Promise(res => setTimeout(res, 500 * (i + 1)));
         }
-      }));
+      }
+    }
+
+    async function load() {
+      document.getElementById('weatherGrid').innerHTML = '<p class="opacity-60">Loading live weather for Cymru...</p>';
+      // Fetch in small batches to avoid rate limits
+      const results = [];
+      for (let i = 0; i < cities.length; i += 5) {
+        const batch = cities.slice(i, i + 5);
+        const batchResults = await Promise.all(batch.map(city => fetchCity(city)));
+        results.push(...batchResults);
+      }
       allResults = results;
       setFeatured(results[0]);
       renderList(results);
