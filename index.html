@@ -54,10 +54,16 @@
       pointer-events: none;
     }
     @keyframes rain { from { transform: translateY(-20px); } to { transform: translateY(20px); } }
-    .sun-rays {
-      animation: pulse 3s ease-in-out infinite;
+    .sun-rays, .temp-glow {
+      animation: throb 2.5s ease-in-out infinite;
     }
-    @keyframes pulse { 50% { opacity: 0.7; transform: scale(1.05); } }
+    @keyframes throb {
+      0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+      50% { opacity: 0.85; transform: scale(1.08); filter: brightness(1.15); }
+    }
+    .icon-throb {
+      animation: throb 2.8s ease-in-out infinite;
+    }
 
     /* Dark mode toggle */
     .toggle-btn { transition: all 0.2s; }
@@ -275,11 +281,11 @@
           <div>
             <h1 class="text-4xl md:text-5xl font-extrabold">${name}</h1>
             <p class="opacity-70">${other}</p>
-            <div class="text-8xl font-light temp-glow my-4" style="color: var(--accent)">${c.temp}°</div>
+            <div class="text-8xl font-light temp-glow my-4 icon-throb" style="color: var(--accent)">${c.temp}°</div>
             <p class="text-2xl font-medium">${lang==='en'?c.desc.en:c.desc.cy}</p>
             <p class="text-sm opacity-70 mt-2">💨 ${c.wind} km/h</p>
           </div>
-          <div class="text-9xl ${c.desc.anim === 'sun' ? 'sun-rays' : ''}">${c.desc.icon}</div>
+          <div class="text-9xl icon-throb">${c.desc.icon}</div>
         </div>`;
 
       document.getElementById('hourly').innerHTML = (c.hourly || []).slice(0, 12).map(h => `
