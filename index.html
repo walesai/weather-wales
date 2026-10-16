@@ -3,68 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>weather.wales</title>
+  <title>weather.wales | Tywydd Cymru</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; background: #f8f9fa; }
-    .wx-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #fefce8 100%); }
+    .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.4); }
+    .temp-glow { text-shadow: 0 4px 20px rgba(14, 165, 233, 0.3); }
+    .card-hover { transition: all 0.2s ease; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="text-slate-800 min-h-screen">
   <!-- Header -->
-  <header class="bg-white border-b border-gray-200 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="text-2xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
-        <span class="font-bold text-xl text-blue-600">weather.wales</span>
+  <header class="glass sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🏴󠁧󠁢󠁷󠁬󠁳󠁿</span>
+        <div>
+          <span class="font-extrabold text-2xl bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">weather.wales</span>
+          <p class="text-xs text-slate-500 -mt-1">Tywydd Cymru</p>
+        </div>
       </div>
-      <button onclick="toggleLang()" class="text-sm text-blue-600 font-medium">
+      <button onclick="toggleLang()" class="px-4 py-2 rounded-full bg-sky-100 text-sky-700 text-sm font-semibold hover:bg-sky-200 transition">
         <span id="langLabel">Cymraeg</span>
       </button>
     </div>
   </header>
 
   <!-- Search -->
-  <div class="bg-white border-b border-gray-200 py-4">
-    <div class="max-w-2xl mx-auto px-4">
-      <input id="searchInput" type="text" placeholder="Search for a city..."
-             class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+  <div class="max-w-2xl mx-auto px-4 py-6">
+    <div class="relative">
+      <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      <input id="searchInput" type="text" placeholder="Search any town or city in Wales..."
+             class="w-full pl-12 pr-6 py-4 rounded-2xl glass shadow-lg text-lg focus:outline-none focus:ring-4 focus:ring-sky-200 transition"
              oninput="filterCities()">
     </div>
   </div>
 
-  <main class="max-w-7xl mx-auto px-4 py-6">
+  <main class="max-w-7xl mx-auto px-4 pb-12">
     <div class="grid lg:grid-cols-3 gap-6">
-      <!-- Main current -->
-      <div class="lg:col-span-2">
-        <div id="current" class="wx-card p-8 mb-6">
+      <!-- Main -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Current -->
+        <div id="current" class="glass rounded-3xl p-8 shadow-xl">
           Loading...
         </div>
 
         <!-- Hourly -->
-        <div class="wx-card p-6 mb-6">
-          <h3 class="font-semibold text-lg mb-4">Hourly</h3>
-          <div id="hourly" class="flex gap-6 overflow-x-auto"></div>
+        <div class="glass rounded-3xl p-6 shadow-lg">
+          <h3 class="font-bold text-lg mb-4 text-slate-700">Hourly Forecast</h3>
+          <div id="hourly" class="flex gap-4 overflow-x-auto pb-2"></div>
         </div>
 
         <!-- Map -->
-        <div class="wx-card overflow-hidden">
+        <div class="glass rounded-3xl overflow-hidden shadow-lg">
           <div id="map" class="h-96"></div>
         </div>
       </div>
 
-      <!-- Side list -->
-      <div class="wx-card p-6">
-        <h3 class="font-semibold text-lg mb-4">Locations in Wales</h3>
-        <div id="weatherGrid" class="space-y-2 max-h-[800px] overflow-y-auto"></div>
+      <!-- Sidebar -->
+      <div class="glass rounded-3xl p-6 shadow-lg">
+        <h3 class="font-bold text-lg mb-4 text-slate-700">Locations across Wales</h3>
+        <div id="weatherGrid" class="space-y-2 max-h-[700px] overflow-y-auto pr-2"></div>
       </div>
     </div>
   </main>
 
-  <footer class="text-center py-6 text-xs text-gray-400 border-t">
-    weather.wales • Open-Meteo data • Made for Cymru
+  <footer class="text-center py-8 text-sm text-slate-500">
+    weather.wales • Live data from Open-Meteo • Made with ❤️ for Cymru 🏴󠁧󠁢󠁷󠁬󠁳󠁿
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -108,10 +116,10 @@
     let featured = null;
 
     const codes = {
-      0: { en: "Clear", cy: "Glir", icon: "☀️" },
-      1: { en: "Mostly Clear", cy: "Yn bennaf glir", icon: "🌤️" },
-      2: { en: "Partly Cloudy", cy: "Cymylog yn rhannol", icon: "⛅" },
-      3: { en: "Cloudy", cy: "Cwmwlog", icon: "☁️" },
+      0: { en: "Clear sky", cy: "Awyr glir", icon: "☀️" },
+      1: { en: "Mostly clear", cy: "Yn bennaf glir", icon: "🌤️" },
+      2: { en: "Partly cloudy", cy: "Cymylog yn rhannol", icon: "⛅" },
+      3: { en: "Overcast", cy: "Cwmwlog", icon: "☁️" },
       61: { en: "Rain", cy: "Glaw", icon: "🌧️" },
       95: { en: "Thunderstorm", cy: "Storm", icon: "⛈️" }
     };
@@ -160,36 +168,36 @@
     function setFeatured(c) {
       featured = c;
       document.getElementById('current').innerHTML = `
-        <div class="flex items-start justify-between">
+        <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-4xl font-bold">${lang==='en'?c.name:c.nameCy}</h1>
-            <p class="text-gray-500">${lang==='en'?c.nameCy:c.name}</p>
-            <div class="text-7xl font-light leading-none my-3">${c.temp}°</div>
-            <p class="text-xl">${lang==='en'?c.desc.en:c.desc.cy}</p>
-            <p class="text-sm text-gray-500 mt-2">Wind ${c.wind} km/h</p>
+            <h1 class="text-4xl font-extrabold">${lang==='en'?c.name:c.nameCy}</h1>
+            <p class="text-slate-500">${lang==='en'?c.nameCy:c.name}</p>
+            <div class="text-8xl font-light temp-glow text-sky-700 my-4">${c.temp}°</div>
+            <p class="text-2xl font-medium">${lang==='en'?c.desc.en:c.desc.cy}</p>
+            <p class="text-sm text-slate-500 mt-2">💨 ${c.wind} km/h</p>
           </div>
-          <div class="text-8xl">${c.desc.icon}</div>
+          <div class="text-9xl">${c.desc.icon}</div>
         </div>`;
       document.getElementById('hourly').innerHTML = (c.hourly || []).slice(0, 12).map(h => `
-        <div class="text-center min-w-[60px]">
-          <div class="text-xs text-gray-500">${h.hour}:00</div>
+        <div class="text-center min-w-[70px] bg-white/60 rounded-xl p-3">
+          <div class="text-xs text-slate-500">${h.hour}:00</div>
           <div class="text-3xl my-1">${desc(h.code).icon}</div>
-          <div class="font-medium">${h.temp}°</div>
+          <div class="font-bold text-sky-700">${h.temp}°</div>
         </div>
       `).join('');
     }
 
     function renderList(data) {
       document.getElementById('weatherGrid').innerHTML = data.map(c => `
-        <div class="flex items-center justify-between py-2 px-2 hover:bg-gray-50 rounded cursor-pointer" onclick='setFeatured(${JSON.stringify(c)})'>
+        <div class="card-hover flex items-center justify-between py-3 px-3 hover:bg-white/60 rounded-xl cursor-pointer" onclick='setFeatured(${JSON.stringify(c)})'>
           <div class="flex items-center gap-3">
-            <span class="text-2xl">${c.desc.icon}</span>
+            <span class="text-3xl">${c.desc.icon}</span>
             <div>
-              <div class="font-medium">${lang==='en'?c.name:c.nameCy}</div>
-              <div class="text-xs text-gray-500">${lang==='en'?c.desc.en:c.desc.cy}</div>
+              <div class="font-semibold">${lang==='en'?c.name:c.nameCy}</div>
+              <div class="text-xs text-slate-500">${lang==='en'?c.desc.en:c.desc.cy}</div>
             </div>
           </div>
-          <div class="text-xl font-light">${c.temp}°</div>
+          <div class="text-2xl font-light text-sky-700">${c.temp}°</div>
         </div>
       `).join('');
     }
